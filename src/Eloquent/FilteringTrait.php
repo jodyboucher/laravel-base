@@ -2,7 +2,6 @@
 
 namespace JodyBoucher\Laravel\Eloquent;
 
-
 use Illuminate\Database\Eloquent\Builder;
 use JodyBoucher\Laravel\Utility\ArrayUtility;
 
@@ -11,13 +10,25 @@ use JodyBoucher\Laravel\Utility\ArrayUtility;
  */
 trait FilteringTrait
 {
-    protected function applyFilters(Builder $query, array $filterRules = [])
+    /**
+     * Apply filtering clauses to query.
+     *
+     * @param Builder $query   The query builder instance to apply the filtering clauses to.
+     * @param array   $filters Array of [ key, value, operator, not ] arrays specifying the filtering clauses to add.
+     */
+    protected function applyFilters(Builder $query, array $filters = [])
     {
-        foreach ($filterRules as $filterRule) {
+        foreach ($filters as $filterRule) {
             $this->applyFilter($query, $filterRule);
         }
     }
 
+    /**
+     * Apply filtering clause to query.
+     *
+     * @param Builder $query  The query builder instance to apply the filtering clause to.
+     * @param array   $filter Array [ key, value, operator, not ] specifying the filtering clause to apply.
+     */
     protected function applyFilter(Builder $query, array $filter)
     {
         $key = ArrayUtility::getValueOrDefault($filter, 'key', '');
