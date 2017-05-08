@@ -2,10 +2,28 @@
 
 namespace JodyBoucher\Laravel\Repository;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 interface RepositoryInterface
 {
+    /**
+     * Apply options to a query builder.
+     *
+     * @param  Builder $query   The query to apply the options to.
+     * @param  array   $options The options to apply.
+     *
+     * @return Builder The modified query builder.
+     */
+    public function applyQueryOptions(Builder $query, array $options = []);
+
+    /**
+     * Return a new query builder for the model.
+     *
+     * @return Builder
+     */
+    public function createQuery();
+
     /**
      * Get all items.
      *
@@ -24,6 +42,15 @@ interface RepositoryInterface
      * @return Collection
      */
     public function getById($id, array $options = []);
+
+    /**
+     * Get query results.
+     *
+     * @param  Builder $query
+     *
+     * @return Collection
+     */
+    public function getQuery(Builder $query);
 
     /**
      * Get items by a where clause.

@@ -31,6 +31,67 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
+     * Apply options to a query builder.
+     *
+     * @param  Builder $query   The query to apply the options to.
+     * @param  array   $options The options to apply.
+     *
+     * @return Builder The modified query builder.
+     */
+    public function applyQueryOptions(Builder $query, array $options = [])
+    {
+        if (!empty($options)) {
+            if (array_has($options, 'with')) {
+                $withes = $options['with'];
+                if (!is_array($withes)) {
+                    throw new InvalidArgumentException('\'with\' must be an array.');
+                }
+                $query->with($withes);
+            }
+
+            if (array_has($options, 'filter')) {
+                $filters = $options['filter'];
+                if (!is_array($filters)) {
+                    throw new InvalidArgumentException('\'filter\' must be an array.');
+                }
+
+                $this->applyFilters($query, $options['filter']);
+            }
+
+            if (array_has($options, 'sort')) {
+                $sorts = $options['sort'];
+                if (!is_array($sorts)) {
+                    throw new InvalidArgumentException('\'sort\' must be an array.');
+                }
+
+                $this->applySorting($query, $sorts);
+            }
+
+            $limit = 10;
+            if (array_has($options, 'limit')) {
+                $limit = $options['limit'];
+                $query->limit($limit);
+            }
+
+            if (array_has($options, 'page')) {
+                $query->offset($options['page'] * $limit);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Return a new query builder for the model.
+     *
+     * @return Builder
+     */
+    public function createQuery()
+    {
+        return $this->createQueryBuilder();
+    }
+
+    /**
      * Get all items.
      *
      * @param  array $options
@@ -57,6 +118,18 @@ abstract class AbstractRepository implements RepositoryInterface
         $query = $this->createBaseBuilder($options);
 
         return $query->find($id);
+    }
+
+    /**
+     * Get query results.
+     *
+     * @param  Builder $query
+     *
+     * @return Collection
+     */
+    public function getQuery(Builder $query)
+    {
+        return $query->get();
     }
 
     /**
@@ -155,57 +228,6 @@ abstract class AbstractRepository implements RepositoryInterface
         $query->whereArray($clauses);
 
         $query->delete();
-    }
-
-    /**
-     * Apply options to a query builder.
-     *
-     * @param  Builder $query   The query to apply the options to.
-     * @param  array   $options The options to apply.
-     *
-     * @return Builder The modified query builder.
-     */
-    protected function applyQueryOptions(Builder $query, array $options = [])
-    {
-        if (!empty($options)) {
-            if (array_has($options, 'with')) {
-                $withes = $options['with'];
-                if (!is_array($withes)) {
-                    throw new InvalidArgumentException('\'with\' must be an array.');
-                }
-                $query->with($withes);
-            }
-
-            if (array_has($options, 'filter')) {
-                $filters = $options['filter'];
-                if (!is_array($filters)) {
-                    throw new InvalidArgumentException('\'filter\' must be an array.');
-                }
-
-                $this->applyFilters($query, $options['filter']);
-            }
-
-            if (array_has($options, 'sort')) {
-                $sorts = $options['sort'];
-                if (!is_array($sorts)) {
-                    throw new InvalidArgumentException('\'sort\' must be an array.');
-                }
-
-                $this->applySorting($query, $sorts);
-            }
-
-            $limit = 10;
-            if (array_has($options, 'limit')) {
-                $limit = $options['limit'];
-                $query->limit($limit);
-            }
-
-            if (array_has($options, 'page')) {
-                $query->offset($options['page'] * $limit);
-            }
-        }
-
-        return $query;
     }
 
     /**
